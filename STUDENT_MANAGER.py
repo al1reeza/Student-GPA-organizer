@@ -1,11 +1,9 @@
 # This will be our course class which will represent a class
 class Course:
     # Constructor for our course/class
-    def __init__(self, title, semester, year, numCredits, grade):
+    def __init__(self, title, num_credits, grade):
         self.title = title
-        self.semester = semester
-        self.year = year
-        self.numCredits = numCredits
+        self.num_credits = num_credits
         self.grade = grade
         Course.setGPA(self)
 
@@ -41,10 +39,12 @@ class Course:
 # This Class will represent a student
 class Student:
     # This will be our custom Constructor
-    def __init__(self, first_name, last_name, grad_year, major):
-        self.firstName = first_name
-        self.lastName = last_name
-        self.gradYear = grad_year
+    def __init__(self, first_name, last_name, id, semester, year, major):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.id = id
+        self.semester = semester
+        self.year = year
         self.major = major
         self.classes = []
         self.gpa = None
@@ -55,24 +55,16 @@ class Student:
 
     # A toString method for student
     def __str__(self):
-        return (f"{self.firstName} {self.lastName} earned a GPA of {self.gpa:.2f}"
-              f" in {self.classes[0].semester} of {self.classes[0].year}")
+         return f"{self.first_name} {self.last_name} earned a GPA of {self.gpa:.2f}"
 
-# This will be a helper method that takes in as input the title, the semester,
+# This will be a helper method that takes in as input the title, theali semester,
 # the year, the grade and the number of credits for the course.
 def createCourse():
     title = input("Enter title of the course: ")
-    # This while loop makes sure that the semester title is accurate and not just
-    # made up
-    while True:
-        semester = input("Enter the semester: (Fall/Winter/Spring): ")
-        if semester == "Fall" or semester == "Winter" or semester == "Spring":
-            break
-        else:
-            print("Wrong semester tite. Please try again and choose one of the "
-                  "following: (Fall/Winter/Spring): ")
-    year = int(input("Enter the year: "))
-    numCredits = int(input("Enter the number of credits for the course: "))
+    num_credits = input("Enter the number of credits for the course: ")
+    while not num_credits.isdigit():
+        num_credits = input("Wrong format! Please enter your number of credits: ")
+    num_credits = int(num_credits)
     grade = input("Enter the grade as a percentage without the '%': ")
     # Check for percentage symbol before converting to int
     while not grade.isdigit():
@@ -106,55 +98,74 @@ def createCourse():
         grade = "D-"
     elif grade < 60:
         grade = "F"
-    return Course(title, semester, year, numCredits, grade)
+    return Course(title, num_credits, grade)
 
 # This method will create a student
 def createStudent():
-    firstName = input("Please enter your first name: ")
-    lastName = input("Please enter your last name: ")
-    gradYear = input("Please enter your graduation year: ")
-    while not gradYear.isdigit():
-        gradYear = input("Wrong format! Please enter your graduation year: ")
-    gradYear = int(gradYear)
-    major = input("Please enter your major: ")
-    return Student(firstName, lastName, gradYear, major)
+    first_name = input("Please enter the first name: ")
+    last_name = input("Please enter the last name: ")
+    id = input("Please enter the student ID: ")
+    while not id.isdigit():
+        id = input("Wrong format! Please enter the student ID: ")
+    id = int(id)
+    # This while loop makes sure that the semester title is accurate and not just
+    # made up
+    while True:
+        semester = input("Enter the semester: (Fall/Winter/Spring): ")
+        # List of acceptable semesters that will be used in the if statement
+        valid_semesters =["fall", "winter", "spring"]
+        # Makes sure code is case-insensetive
+        if semester.lower().strip() in valid_semesters:
+            break
+        else:
+            print("Wrong semester tite. Please try again and choose one of the "
+                  "following: (Fall/Winter/Spring): ")
+    year = input("Enter the year: ")
+    while not year.isdigit():
+        year = input("Wrong format! Please enter the year: ")
+    year = int(year)
+    major = input("Please enter the major: ")
+    return Student(first_name, last_name, id, semester, year, major)
 
 
 # This will be a helper function that will calculate the Gpa of a student
 def calculateGpa(student):
-    totalScore = 0
-    totalCredits = 0
+    total_score = 0
+    total_credits = 0
     for course in student.classes:
-        totalScore += course.gpa * course.numCredits
-        totalCredits += course.numCredits
-    if totalCredits == 0:
+        total_score += course.gpa * course.num_credits
+        total_credits += course.num_credits
+    if total_credits == 0:
         raise ValueError("Student can not have 0 classes")
-    Gpa = totalScore / totalCredits
-    return Gpa
+    gpa = total_score / total_credits
+    return gpa
 
 # This will be the main app
 def main():
-    sentinelForStudent = True  # This will be our sentinel for course
-    listOfStudnets = []
-    while sentinelForStudent:
+    print("Hello!\nThis Program will help you organize your stduents.\nPlease " +
+          "input the required information and I will do the rest!")
+    sentinel_for_student = True  # This will be our sentinel for course
+    list_of_students = []
+    while sentinel_for_student:
         student = createStudent()
-        sentinelForCourse = True  # This will be our sentinel for course
-        while sentinelForCourse:
+        sentinel_for_course = True  # This will be our sentinel for course
+        while sentinel_for_course:
             course = createCourse()
             student.addCourse(course)
-            moveOn1 = input("Are there courses left? (Yes/No): ")
-            while moveOn1 != "Yes" and moveOn1 != "No":
-                moveOn1 = input("Wrong format please answer either 'Yes' or 'No': ")
-            if moveOn1 == "No":
-                sentinelForCourse = False
-        listOfStudnets.append(student)  # Appends the student to the list of students
+            move_on_1 = input("Are there any courses left? (Yes/No): ").strip().lower()
+            while move_on_1.lower() != "yes" and move_on_1.lower() != "no": # Makes sure this is case-insensetive
+                move_on_1 = input("Wrong format please answer either 'Yes' or 'No': ").strip().lower()
+            if move_on_1.lower().strip() == "no":
+                sentinel_for_course = False
+        list_of_students.append(student)  # Appends the student to the list of students
         student.gpa = calculateGpa(student) # Calculates the Students GPA
-        moveOn2 = input("Are there students left? (Yes/No): ")
-        while moveOn2 != "Yes" and moveOn2 != "No":
-            moveOn2 = input("Wrong format please answer either 'Yes' or 'No': ")
-        if moveOn2 == "No":
-            sentinelForStudent = False
-    for stdnt in listOfStudnets:
+        move_on_2 = input("Are there students left? (Yes/No): ").strip().lower()
+        while move_on_2 != "yes" and move_on_2 != "no":
+            move_on_2 = input("Wrong format please answer either 'Yes' or 'No': ").strip().lower()
+        if move_on_2.lower() == "no":
+            sentinel_for_student = False
+    print("Thank you for using our interface! Here are your results:")
+    for stdnt in list_of_students:
         print(stdnt)
 
 # Runs the main method
